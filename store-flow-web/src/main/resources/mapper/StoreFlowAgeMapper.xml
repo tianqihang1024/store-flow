@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="extend.mapper.StoreFlowAgeMapper">
+
+    <resultMap id="BaseResultMap" type="extend.bean.StoreFlowAge">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+        <result property="storeId" column="store_id" jdbcType="VARCHAR"/>
+        <result property="age1" column="age1" jdbcType="BIGINT"/>
+        <result property="age2" column="age2" jdbcType="BIGINT"/>
+        <result property="age3" column="age3" jdbcType="BIGINT"/>
+        <result property="age4" column="age4" jdbcType="BIGINT"/>
+        <result property="age5" column="age5" jdbcType="BIGINT"/>
+        <result property="age6" column="age6" jdbcType="BIGINT"/>
+        <result property="age7" column="age7" jdbcType="BIGINT"/>
+        <result property="del" column="del" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tenant_id,store_id,
+        age1,age2,age3,
+        age4,age5,age6,
+        age7,del,create_time,
+        update_time
+    </sql>
+</mapper>

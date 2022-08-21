@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="extend.mapper.StoreFlowSexMapper">
+
+    <resultMap id="BaseResultMap" type="extend.bean.StoreFlowSex">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+        <result property="storeId" column="store_id" jdbcType="VARCHAR"/>
+        <result property="maleCount" column="male_count" jdbcType="BIGINT"/>
+        <result property="femaleCount" column="female_count" jdbcType="BIGINT"/>
+        <result property="unknownCount" column="unknown_count" jdbcType="BIGINT"/>
+        <result property="del" column="del" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tenant_id,store_id,
+        male_count,female_count,unknown_count,
+        del,create_time,update_time
+    </sql>
+
+    <select id="cc">
+    </select>
+</mapper>
