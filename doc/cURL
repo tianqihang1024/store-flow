@@ -1,0 +1,9 @@
+
+// 查询店铺客流记录-租户必传、开始结束时间可选
+curl --location --request POST 'localhost:9020/storeFlow/es/searchStoreFlowByParam' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "tenantId":1,
+    "startTime":"2022-03-19 22:30:00",
+    "endTime":"2022-03-21 12:30:00"
+}'

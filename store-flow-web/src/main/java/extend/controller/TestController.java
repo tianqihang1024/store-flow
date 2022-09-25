@@ -3,7 +3,6 @@ package extend.controller;
 import extend.bean.StoreFlow;
 import extend.es.StoreFlowEsService;
 import extend.param.SearchStoreFlowParam;
-import extend.service.StoreFlowService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "/test/")
+@RequestMapping(value = "/storeFlow/es/")
 public class TestController {
 
     @Resource
