@@ -69,6 +69,6 @@ public class SeataAutoConfig {
     @DependsOn(value = {"druidDataSource"})
     public GlobalTransactionScanner globalTransactionScanner() {
         logger.info("配置seata........");
-        return new GlobalTransactionScanner("test-service", "test-group");
+        return new GlobalTransactionScanner("store-flow-service", "my_test_tx_group");
     }
 }

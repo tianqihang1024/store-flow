@@ -6,6 +6,8 @@ import extend.mapper.StoreFlowMapper;
 import extend.service.StoreFlowService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 /**
  * @author 22489
  * @description 针对表【store_flow(店铺客流表)】的数据库操作Service实现
@@ -13,5 +15,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StoreFlowServiceImpl extends ServiceImpl<StoreFlowMapper, StoreFlow> implements StoreFlowService {
+
+    @Resource
+    private StoreFlowMapper storeFlowMapper;
+
 
 }

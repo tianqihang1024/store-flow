@@ -15,7 +15,7 @@
         <result property="age5" column="age5" jdbcType="BIGINT"/>
         <result property="age6" column="age6" jdbcType="BIGINT"/>
         <result property="age7" column="age7" jdbcType="BIGINT"/>
-        <result property="del" column="del" jdbcType="INTEGER"/>
+        <result property="valid" column="valid" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -24,7 +24,7 @@
         id,tenant_id,store_id,
         age1,age2,age3,
         age4,age5,age6,
-        age7,del,create_time,
+        age7,valid,create_time,
         update_time
     </sql>
 </mapper>

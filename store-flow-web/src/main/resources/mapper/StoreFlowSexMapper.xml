@@ -11,7 +11,7 @@
         <result property="maleCount" column="male_count" jdbcType="BIGINT"/>
         <result property="femaleCount" column="female_count" jdbcType="BIGINT"/>
         <result property="unknownCount" column="unknown_count" jdbcType="BIGINT"/>
-        <result property="del" column="del" jdbcType="INTEGER"/>
+        <result property="valid" column="valid" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -19,7 +19,7 @@
     <sql id="Base_Column_List">
         id,tenant_id,store_id,
         male_count,female_count,unknown_count,
-        del,create_time,update_time
+        valid,create_time,update_time
     </sql>
 
     <select id="cc">

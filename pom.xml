@@ -12,6 +12,8 @@
     <modules>
         <module>store-flow-service</module>
         <module>store-flow-web</module>
+        <module>store-flow-api</module>
+        <module>store-flow-api-impl</module>
     </modules>
 
     <groupId>extend</groupId>
@@ -68,7 +70,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.3.12.RELEASE</version>
                 <configuration>
-                    <mainClass>com.LearnMysqlApplication</mainClass>
+                    <mainClass>extend.StoreFlowWebApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

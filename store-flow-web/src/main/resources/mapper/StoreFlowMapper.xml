@@ -9,14 +9,14 @@
         <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
         <result property="storeId" column="store_id" jdbcType="VARCHAR"/>
         <result property="flowCount" column="flow_count" jdbcType="BIGINT"/>
-        <result property="del" column="del" jdbcType="INTEGER"/>
+        <result property="valid" column="valid" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,tenant_id,store_id,
-        flow_count,del,create_time,
+        flow_count,valid,create_time,
         update_time
     </sql>
 </mapper>

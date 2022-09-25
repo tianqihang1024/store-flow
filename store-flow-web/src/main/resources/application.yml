@@ -9,30 +9,27 @@ spring: #springboot的配置
     password: Tqh962454294 #该数据库用户的密码
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
-    password: Tian962454294
-    cluster:
-      nodes: 192.168.71.128:6379,192.168.71.128:6380,192.168.71.128:6381,192.168.71.128:6382,192.168.71.128:6383,192.168.71.128:6384
-    jedis:
+    client-name: r-2zeyc8xu8nz6nemlw0
+    password: TQH&19970227
+    host: r-2zeyc8xu8nz6nemlw0pd.redis.rds.aliyuncs.com
+    lettuce:
       pool:
         max-active: 8
         max-wait: 1
         max-idle: 8
         min-idle: 0
-    timeout: 0
-  ##Redisson配置
-  redisson:
-    enable: true
-    cluster-servers-config:
-      cluster-nodes: ${spring.redis.cluster.nodes}
-      load-balancer-mode: RANDOM
-      password: ${spring.redis.password}
-      slave-connection-minimum-idle-size: 8
-      slave-connection-pool-size: 16
-      sslEnableEndpointIdentification: false
-    threads: 8
-    nettyThreads: 8
-    transportMode: NIO
-
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+  elasticsearch:
+    rest:
+      uris: http://43.140.243.16:9200
+      read-timeout: 3
+management:
+  health:
+    elasticsearch:
+      enabled: false
 
 # mybatis-plus相关配置
 mybatis-plus:
@@ -53,4 +50,4 @@ mybatis-plus:
     # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
     call-setters-on-nulls: true
     # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -21,3 +21,4 @@ spring:
         server-addr: 81.70.96.232:8848
         namespace: c013fb55-732f-4cae-965c-7ec33faa4307
         group: EXTEND_GROUP
+        ip: 43.140.243.16
