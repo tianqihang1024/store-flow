@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -61,10 +62,30 @@ public class StoreFlowTask {
 
     @Async("commonPool")
     public void storeFlowSave(long value) {
-        List<Store> storeList = storeMapper.selectList(new LambdaQueryWrapper<>());
+        log.info("当前线程为：{}", Thread.currentThread().getName());
 
-        storeList.forEach(store -> {
-            for (long i = value == 0L ? 1 : value; i < TASK_EXECUTION_CYCLE; i++) {
+        for (; true; ) {
+
+            LambdaQueryWrapper<Store> queryWrapper = new LambdaQueryWrapper<>();
+            Page<Store> producePage = new Page<>(++value, 1);
+            IPage<Store> storeFlowIPage = storeMapper.selectPage(producePage, queryWrapper);
+            List<Store> records = storeFlowIPage.getRecords();
+
+            if (CollectionUtils.isEmpty(records)) {
+                log.info("初始化客流数据完成，终止程序");
+                return;
+            }
+            Store store = records.get(0);
+
+            LambdaQueryWrapper<StoreFlow> storeFlowQueryWrapper = new LambdaQueryWrapper<>();
+            storeFlowQueryWrapper.eq(StoreFlow::getStoreId, store.getStoreId());
+            Integer integer = storeFlowMapper.selectCount(storeFlowQueryWrapper);
+            if (integer != null && integer > 0) {
+                log.info("店铺数据已经初始化 store-{} count-{}", store, integer);
+                continue;
+            }
+
+            for (long i = 1; i < TASK_EXECUTION_CYCLE; i++) {
 
                 try {
                     TimeUnit.SECONDS.sleep(0);
@@ -75,26 +96,31 @@ public class StoreFlowTask {
                 LocalDateTime now = LocalDateTime.now().minusDays(i);
                 LocalDateTime startTime = LocalDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 10, 10);
                 LocalDateTime endTime = LocalDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 22, 0);
+
+                List<StoreFlow> list = new ArrayList<>(75);
                 for (LocalDateTime copy = startTime; copy.compareTo(endTime) <= 0; copy = copy.plusMinutes(10)) {
-                    try {
-                        long flowCount = RANDOM.nextLong(1000);
-                        StoreFlow storeFlow = StoreFlow.builder()
-                                .tenantId(store.getTenantId())
-                                .storeId(store.getStoreId())
-                                .flowCount(flowCount)
-                                .valid(0)
-                                .createTime(copy)
-                                .updateTime(copy)
-                                .build();
-                        storeFlowMapper.insert(storeFlow);
-                    } catch (Exception e) {
-                        log.info("店铺-{} 新增失败时间-{} e-{}", store, copy, e);
-                    }
+                    long flowCount = RANDOM.nextLong(1000);
+                    StoreFlow storeFlow = StoreFlow.builder()
+                            .tenantId(store.getTenantId())
+                            .storeId(store.getStoreId())
+                            .flowCount(flowCount)
+                            .valid(0)
+                            .createTime(copy)
+                            .updateTime(copy)
+                            .build();
+                    list.add(storeFlow);
                 }
-                log.info("店铺-{} 时间-{} 新增记录成功", store, now);
+                try {
+                    int i1 = storeFlowMapper.insertBatchSomeColumn(list);
+                    log.info("店铺-{} 时间-{} 待新增数-{} 新增数-{} 新增记录成功", store, list.size(), i1, now);
+                } catch (Exception e) {
+                    log.info("店铺-{} e-{}", store, e);
+                }
             }
             log.info("店铺-{} 新增记录成功", store);
-        });
+            ;
+        }
+
     }
 
     //    @Scheduled(cron = "0 * * * * ?")

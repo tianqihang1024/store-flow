@@ -31,11 +31,13 @@ public class TestController {
 
     @RequestMapping("storeFlowSave")
     public void storeFlowSave(long value) {
+        log.info("当前线程为：{}", Thread.currentThread().getName());
         storeFlowTask.storeFlowSave(value);
     }
 
     @RequestMapping("syncDataToEs")
     public void syncDataToEs(Integer value) {
+        log.info("当前线程为：{}", Thread.currentThread().getName());
         storeFlowTask.syncDataEs(value);
     }
 
