@@ -2,6 +2,9 @@ package extend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import extend.bean.StoreFlow;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author 22489
@@ -11,5 +14,12 @@ import extend.bean.StoreFlow;
  */
 public interface StoreFlowMapper extends BaseMapper<StoreFlow> {
 
-
+    /**
+     * 批量插入
+     * {@link com.baomidou.mybatisplus.extension.injector.methods.additional.InsertBatchSomeColumn}
+     *
+     * @param entityList 要插入的数据
+     * @return 成功插入的数据条数
+     */
+    int insertBatchSomeColumn(@Param("list") List<StoreFlow> entityList);
 }
