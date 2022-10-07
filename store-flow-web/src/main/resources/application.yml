@@ -24,7 +24,7 @@ spring: #springboot的配置
         enabled: true
   elasticsearch:
     rest:
-      uris: http://43.140.243.16:9200
+      ip: 43.140.243.16
       read-timeout: 3
 management:
   health:
