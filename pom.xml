@@ -14,6 +14,7 @@
         <module>store-flow-web</module>
         <module>store-flow-api</module>
         <module>store-flow-api-impl</module>
+        <module>store-flow-domain</module>
     </modules>
 
     <groupId>extend</groupId>
@@ -71,6 +72,7 @@
                 <version>2.3.12.RELEASE</version>
                 <configuration>
                     <mainClass>extend.StoreFlowWebApplication</mainClass>
+                    <classifier>exec</classifier>
                 </configuration>
                 <executions>
                     <execution>

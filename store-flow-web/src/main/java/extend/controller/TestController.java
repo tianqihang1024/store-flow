@@ -3,6 +3,7 @@ package extend.controller;
 import extend.bean.StoreFlow;
 import extend.es.StoreFlowEsService;
 import extend.param.SearchStoreFlowParam;
+import extend.tasks.StoreFlowTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,19 @@ public class TestController {
     @Resource
     private StoreFlowEsService storeFlowEsService;
 
+    @Resource
+    private StoreFlowTask storeFlowTask;
+
+    @RequestMapping("storeFlowSave")
+    public void storeFlowSave(long value) {
+        storeFlowTask.storeFlowSave(value);
+    }
+
+    @RequestMapping("syncDataToEs")
+    public void syncDataToEs(Integer value) {
+        storeFlowTask.syncDataEs(value);
+    }
+
     @RequestMapping(value = "saveTestData")
     public void saveTestData() {
         storeFlowEsService.saveTestData();
@@ -41,3 +55,4 @@ public class TestController {
     }
 
 }
+
