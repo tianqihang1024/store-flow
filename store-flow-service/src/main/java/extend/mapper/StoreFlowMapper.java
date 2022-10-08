@@ -22,4 +22,9 @@ public interface StoreFlowMapper extends BaseMapper<StoreFlow> {
      * @return 成功插入的数据条数
      */
     int insertBatchSomeColumn(@Param("list") List<StoreFlow> entityList);
+
+    List<StoreFlow> selectLimit(@Param("minId") long minId);
+
+    long selectMinId();
+
 }

@@ -123,15 +123,15 @@ public class StoreFlowTask {
 
     }
 
-    //    @Scheduled(cron = "0 * * * * ?")
-    @Async("commonPool")
-    public void syncDataEs(int value) {
-
-        if (value != 0) {
-            initIndex.set(value);
-        }
+    /**
+     *
+     * @param minId 入参需要比实际数小100，达到兼容作用
+     */
+    @Async(value = "commonPool")
+    public void syncDataEs(long minId) {
 
         log.info("当前线程为：{}", Thread.currentThread().getName());
+         minId = minId != 0L ? minId : storeFlowMapper.selectMinId() - 100;
 
         for (; true; ) {
 
@@ -140,20 +140,20 @@ public class StoreFlowTask {
             } catch (Exception e) {
                 log.info("安全区创建失败");
             }
+            minId = minId + 100;
 
-            Page<StoreFlow> producePage = new Page<>(initIndex.incrementAndGet(), 10);
-            LambdaQueryWrapper<StoreFlow> queryWrapper = new LambdaQueryWrapper<>();
-            IPage<StoreFlow> storeFlowIPage = storeFlowMapper.selectPage(producePage, queryWrapper);
-            List<StoreFlow> records = storeFlowIPage.getRecords();
+            List<StoreFlow> records = storeFlowMapper.selectLimit(minId);
 
-            if (CollectionUtils.isEmpty(records)) {
-                log.info("数据同步完成，终止程序");
-                return;
-            }
             try {
-                storeFlowRepository.saveAll(records);
-                long count = storeFlowRepository.count();
-                log.info("以同步的数据量为：{}", count);
+                if (! CollectionUtils.isEmpty(records)) {
+                    storeFlowRepository.saveAll(records);
+                } else {
+                    long count = storeFlowRepository.count();
+                    if (count == 47240784) {
+                        log.info("数据同步完成，终止程序");
+                        return;
+                    }
+                }
             } catch (Exception e) {
                 log.info("同步数据到 es 时发送错误：", e);
             }

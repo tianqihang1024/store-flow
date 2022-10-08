@@ -36,9 +36,9 @@ public class TestController {
     }
 
     @RequestMapping("syncDataToEs")
-    public void syncDataToEs(Integer value) {
+    public void syncDataToEs(long minId) {
         log.info("当前线程为：{}", Thread.currentThread().getName());
-        storeFlowTask.syncDataEs(value);
+        storeFlowTask.syncDataEs(minId);
     }
 
     @RequestMapping(value = "saveTestData")

@@ -19,4 +19,19 @@
         flow_count,valid,create_time,
         update_time
     </sql>
+    <select id="selectLimit" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            store_flow
+        where
+            id &gt;= #{minId}
+            and id &lt; #{minId} + 100
+    </select>
+    <select id="selectMinId" resultType="java.lang.Long">
+        select
+            min(id)
+        from
+            store_flow
+    </select>
 </mapper>
