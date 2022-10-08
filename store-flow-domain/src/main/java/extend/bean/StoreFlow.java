@@ -38,20 +38,7 @@ public class StoreFlow implements Serializable {
     @Field(type = FieldType.Long)
     private Long id;
     /**
-     * FieldType.Text 和 FieldType.Keyword 的区别
-     * Text在存储字符串数据的时候，会自动建立索引，占用部分空间资源。
-     * Keyword存储字符串数据时，不会建立索引。
-     * 相同点：两者都是字符串类型
-     * <p>
-     * analyzer 和 searchAnalyzer 的区别：
-     * 分析器主要有两种情况会被使用：
-     * 第一种是插入文档时，将text类型的字段做分词然后插入倒排索引，
-     * 第二种就是在查询时，先对要查询的text类型的输入做分词，再去倒排索引搜索
-     * 如果想要让 索引 和 查询 时使用不同的分词器，ElasticSearch也是能支持的，只需要在字段上加上search_analyzer参数
-     * 在索引时，只会去看字段有没有定义analyzer，有定义的话就用定义的，没定义就用ES预设的
-     * 在查询时，会先去看字段有没有定义search_analyzer，如果没有定义，就去看有没有analyzer，再没有定义，才会去使用ES预设的
-     * <p>
-     * ik_smart 和 ik_max_word
+     * 租户ID
      */
     @Field(type = FieldType.Keyword, analyzer = "ik_smart", searchAnalyzer = "ik_smart")
     private String tenantId;

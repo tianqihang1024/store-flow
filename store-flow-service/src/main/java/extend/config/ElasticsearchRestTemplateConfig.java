@@ -15,14 +15,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchRestTemplateConfig {
 
-    @Value("${spring.elasticsearch.rest.uris}")
+    @Value("${spring.elasticsearch.rest.ip}")
     private String uris;
 
     @Bean
     public RestHighLevelClient restHighLevelClient() {
+        int i = Runtime.getRuntime().availableProcessors();
+        String uri = i > 4 ? uris : "172.17.0.4";
         return new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost("43.140.243.16", 9200, "http")
+                        new HttpHost(uri, 9200, "http")
                 )
         );
     }
