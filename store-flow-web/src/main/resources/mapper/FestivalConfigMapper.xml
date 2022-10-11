@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="extend.mapper.FestivalConfigMapper">
+
+    <resultMap id="BaseResultMap" type="extend.bean.FestivalConfig">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="festivalNameCn" column="festival_name_cn" jdbcType="VARCHAR"/>
+        <result property="festivalNameEn" column="festival_name_en" jdbcType="VARCHAR"/>
+        <result property="festivalStartTime" column="festival_start_time" jdbcType="TIMESTAMP"/>
+        <result property="festivalEndTime" column="festival_end_time" jdbcType="TIMESTAMP"/>
+        <result property="festivalSize" column="festival_size" jdbcType="INTEGER"/>
+        <result property="created" column="created" jdbcType="TIMESTAMP"/>
+        <result property="updated" column="updated" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,festival_name_cn,festival_name_en,
+        festival_start_time,festival_end_time,festival_size,
+        created,updated
+    </sql>
+    <update id="updateHolidayConfig">
+        <foreach collection="list" item="item">
+            update festival_config set festival_start_time = #{item.festivalStartTime}, festival_end_time =
+            #{item.festivalEndTime}, festival_size = #{item.festival_size} where id = #{item.id}
+        </foreach>
+    </update>
+    <select id="getFestivalConfigByNameCn" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        festival_config
+        where
+        festival_name_cn in
+        <foreach collection="list" open="(" close=")" item="item" separator=",">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

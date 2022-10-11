@@ -1,7 +1,7 @@
 package extend.tasks.impl;
 
+import extend.tasks.FestivalConfigService;
 import extend.tasks.FlowRankingOfStoresService;
-import extend.tasks.HolidayConfigService;
 import extend.tasks.LargeDataScreenTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class LargeDataScreenTaskTaskServiceImpl implements LargeDataScreenTaskService {
 
     @Resource
-    private HolidayConfigService holidayConfigService;
+    private FestivalConfigService festivalConfigService;
 
     @Resource
     private FlowRankingOfStoresService flowRankingOfStoresService;
@@ -22,7 +22,7 @@ public class LargeDataScreenTaskTaskServiceImpl implements LargeDataScreenTaskSe
     @Override
     public void updateHolidayConfig(LocalDateTime taskStartTime) {
         // TODO 待补充分布式锁，重试机制
-        holidayConfigService.updateHolidayConfig(taskStartTime);
+        festivalConfigService.syncHolidayConfig(taskStartTime);
     }
 
     @Override
