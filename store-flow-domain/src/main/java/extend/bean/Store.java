@@ -38,6 +38,10 @@ public class Store implements Serializable {
      */
     private String storeName;
     /**
+     * 店铺状态 1：初始化 2：营业 3：停业
+     */
+    private Integer storeStatus;
+    /**
      * 是否有效 0：有效 1：失效
      */
     private Integer valid;

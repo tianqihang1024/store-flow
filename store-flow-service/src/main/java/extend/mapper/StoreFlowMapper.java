@@ -1,9 +1,9 @@
 package extend.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import extend.bean.StoreFlow;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -12,15 +12,17 @@ import java.util.List;
  * @createDate 2022-08-19 22:59:58
  * @Entity extend.bean.StoreFlow
  */
-public interface StoreFlowMapper extends BaseMapper<StoreFlow> {
+public interface StoreFlowMapper extends ExtendBaseMapper<StoreFlow> {
 
     /**
-     * 批量插入
-     * {@link com.baomidou.mybatisplus.extension.injector.methods.additional.InsertBatchSomeColumn}
+     * 按租户 ID 获取商店流量
      *
-     * @param entityList 要插入的数据
-     * @return 成功插入的数据条数
+     * @param tenantId  租户 ID
+     * @param startTime 开始时间
+     * @param endTimme  结束时间
+     * @return StoreFlow 中只有 storeId、flowCount有值
      */
-    int insertBatchSomeColumn(@Param("list") List<StoreFlow> entityList);
-
+    List<StoreFlow> getStoreFlowByTenantId(@Param("tenantId") String tenantId,
+                                           @Param("startTime") LocalDateTime startTime,
+                                           @Param("endTimme") LocalDateTime endTimme);
 }

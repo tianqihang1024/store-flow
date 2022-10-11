@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(indexName = "store_flow", shards = 2, replicas = 1)
-public class StoreFlow implements Serializable {
+public class StoreFlow implements Serializable, Comparable<StoreFlow>{
 
     private static final long serialVersionUID = 1L;
 
@@ -51,7 +51,7 @@ public class StoreFlow implements Serializable {
      * 客流量
      */
     @Field(type = FieldType.Long)
-    private Long flowCount;
+    private Integer flowCount;
     /**
      * 是否有效 0：有效 1：失效
      */
@@ -71,5 +71,25 @@ public class StoreFlow implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "epoch_millis")
     private LocalDateTime updateTime;
+
+    /**
+     * 默认降序排列，有特殊要求，请自定义
+     * @param storeFlow the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(StoreFlow storeFlow) {
+        if(null == storeFlow || null == storeFlow.getFlowCount()) {
+            return -1;
+        }
+        if(null == this.getFlowCount()) {
+            return 1;
+        }
+        return storeFlow.getFlowCount().compareTo(this.getFlowCount());
+    }
+
+    public int compare(Integer o1, Integer o2) {
+        return o2.compareTo(o1);
+    }
 
 }

@@ -9,6 +9,7 @@
         <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
         <result property="storeId" column="store_id" jdbcType="VARCHAR"/>
         <result property="storeName" column="store_name" jdbcType="VARCHAR"/>
+        <result property="storeStatus" column="store_status" jdbcType="INTEGER"/>
         <result property="valid" column="valid" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
@@ -16,7 +17,19 @@
 
     <sql id="Base_Column_List">
         id,tenant_id,store_id,
-        store_name,valid,create_time,
+        store_name,store_status,valid,create_time,
         update_time
     </sql>
+    <select id="getAValidTenantList" resultType="java.lang.String">
+        select
+            tenant_id
+        from
+            store
+        where
+            create_time &lt;= #{taskStartTime}
+            and valid = 0
+            and store_status = 2
+        group by
+            tenant_id;
+    </select>
 </mapper>
