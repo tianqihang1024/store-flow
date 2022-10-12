@@ -29,8 +29,7 @@ import java.util.Objects;
 @Service
 public class FestivalConfigServiceImpl implements FestivalConfigService {
 
-    //    private static final String URL = "https://api.tianapi.com/jiejiari/index?key=%s&date=%s";
-    private static final String URL = "http://api.tianapi.com/jiejiari/index?key=660068bb549dae9a968ec5c53665ec24&date=2020-10-01";
+    private static final String URL = "https://api.tianapi.com/jiejiari/index?key=%s&date=%s";
 
     @Value("${api.tianapi.key:660068bb549dae9a968ec5c53665ec24}")
     private String appKey;
@@ -95,8 +94,7 @@ public class FestivalConfigServiceImpl implements FestivalConfigService {
     private String request(LocalDateTime taskStartTime) {
         String result = null;
         StringBuilder sbf = new StringBuilder();
-//        String httpUrl = String.format(URL, appKey, taskStartTime);
-        String httpUrl = URL;
+        String httpUrl = String.format(URL, appKey, taskStartTime);
 
         try {
             URL url = new URL(httpUrl);
