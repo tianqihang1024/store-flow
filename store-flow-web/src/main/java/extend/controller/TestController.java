@@ -3,7 +3,9 @@ package extend.controller;
 import extend.bean.StoreFlow;
 import extend.es.StoreFlowEsService;
 import extend.param.SearchStoreFlowParam;
+import extend.param.SearchStoreFlowScrollParam;
 import extend.param.UpdateStoreFlowParam;
+import extend.vo.SearchScrollStoreFlowVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.UpdateResponse;
@@ -58,6 +60,17 @@ public class TestController {
     @RequestMapping(value = "updateStoreFlow")
     public UpdateResponse updateStoreFlow(@RequestBody UpdateStoreFlowParam storeFlowParam) {
         return storeFlowEsService.updateStoreFlow(storeFlowParam);
+    }
+
+    /**
+     * 修改客流数据
+     *
+     * @param searchStoreFlowScrollParam
+     * @return
+     */
+    @RequestMapping(value = "searchScrollStoreFlow")
+    public SearchScrollStoreFlowVO searchScrollStoreFlow(@RequestBody SearchStoreFlowScrollParam searchStoreFlowScrollParam) {
+        return storeFlowEsService.searchScrollStoreFlow(searchStoreFlowScrollParam);
     }
 
 }

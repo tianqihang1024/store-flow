@@ -18,6 +18,12 @@ public class ElasticsearchRestTemplateConfig {
     @Value("${spring.elasticsearch.rest.ip}")
     private String uris;
 
+    /**
+     * 本人会将这个服务部署到云服务器，采用的docker方式，存在IP问题，
+     * 如果是和es服务不在一台机器上，可以省略这个，直接写成es服务地址
+     *
+     * @return
+     */
     @Bean
     public RestHighLevelClient restHighLevelClient() {
         int i = Runtime.getRuntime().availableProcessors();

@@ -1,4 +1,4 @@
-package extend.utils;
+package extend.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum StoreFlowFailEnum {
-
 
 
     /**

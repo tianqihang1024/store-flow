@@ -4,17 +4,26 @@ import com.alibaba.fastjson.JSON;
 import extend.bean.StoreFlow;
 import extend.dao.StoreFlowRepository;
 import extend.dto.UpdateStoreFlowDTO;
+import extend.enums.StoreFlowSortColumnNameEnum;
 import extend.es.StoreFlowEsService;
 import extend.param.SearchStoreFlowParam;
+import extend.param.SearchStoreFlowScrollParam;
 import extend.param.UpdateStoreFlowParam;
-import extend.utils.StoreFlowFailEnum;
+import extend.util.StoreFlowFailEnum;
+import extend.vo.SearchScrollStoreFlowVO;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.document.Document;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -27,6 +36,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 田奇杭
@@ -37,7 +47,15 @@ import java.util.List;
 @Service
 public class StoreFlowEsServiceImpl implements StoreFlowEsService {
 
+    /**
+     * 默认时区
+     */
     private static final ZoneOffset OF = ZoneOffset.of("+8");
+
+    /**
+     * ES索引名称
+     */
+    private static final String INDEX_NAME = "store_flow";
 
     @Resource
     private StoreFlowRepository storeFlowRepository;
@@ -64,14 +82,20 @@ public class StoreFlowEsServiceImpl implements StoreFlowEsService {
      */
     @Override
     public SearchHits<StoreFlow> searchStoreFlowByParam(SearchStoreFlowParam searchStoreFlowParam) {
+
+        // 1.检查参数
         StoreFlowFailEnum checkFlag = this.checkSearchParam(searchStoreFlowParam);
         if (checkFlag != null) {
             return null;
         }
+
+        // 2.构建查询器
         BoolQueryBuilder boolQueryBuilder = this.builderQueryConditions(searchStoreFlowParam);
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(boolQueryBuilder)
                 .build();
+
+        // 3.查询并返回
         return elasticsearchRestTemplate.search(searchQuery, StoreFlow.class);
     }
 
@@ -108,7 +132,58 @@ public class StoreFlowEsServiceImpl implements StoreFlowEsService {
                 // 被修改的文档不存在时，改为插入
                 .withDocAsUpsert(true)
                 .build();
-        return elasticsearchRestTemplate.update(updateQuery, IndexCoordinates.of("store_flow"));
+        return elasticsearchRestTemplate.update(updateQuery, IndexCoordinates.of(INDEX_NAME));
+    }
+
+    /**
+     * 滚动查询店铺客流数据
+     *
+     * @param searchStoreFlowScrollParam
+     * @return
+     */
+    @Override
+    public SearchScrollStoreFlowVO searchScrollStoreFlow(SearchStoreFlowScrollParam searchStoreFlowScrollParam) {
+
+        // 条件查询器
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termQuery("tenantId", searchStoreFlowScrollParam.getTenantId()))
+                .filter(QueryBuilders.termQuery("storeId", searchStoreFlowScrollParam.getStoreId()));
+
+        // 自定义排序器
+        StoreFlowSortColumnNameEnum columnNameEnum = StoreFlowSortColumnNameEnum.getEnumByCode(searchStoreFlowScrollParam.getSortColumnCode());
+        FieldSortBuilder sortBuilder = SortBuilders
+                .fieldSort(columnNameEnum.getColumnName())
+                .order(SortOrder.ASC);
+        // 分数排序器
+        ScoreSortBuilder scoreSortBuilder = new ScoreSortBuilder();
+
+        // 搜索查询条件
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .withQuery(queryBuilder)
+                .withSort(sortBuilder)
+                .withSort(scoreSortBuilder)
+                .build();
+        nativeSearchQuery.setMaxResults(searchStoreFlowScrollParam.getPageSize());
+
+        //设置缓存内数据的保留时间
+        long scrollTimeInMillis = 60000;
+
+        SearchScrollHits<StoreFlow> searchScrollHits;
+
+        // scrollId 为空表示第一次查询
+        if (StringUtils.isEmpty(searchStoreFlowScrollParam.getScrollId())) {
+            searchScrollHits = elasticsearchRestTemplate.searchScrollStart(scrollTimeInMillis, nativeSearchQuery, StoreFlow.class, IndexCoordinates.of(INDEX_NAME));
+        } else {
+            // scrollId 不为空表示最少进行了一次查询，该方法执行后会重新刷新快照保留时间
+            searchScrollHits = elasticsearchRestTemplate.searchScrollContinue(searchStoreFlowScrollParam.getScrollId(), scrollTimeInMillis, StoreFlow.class, IndexCoordinates.of(INDEX_NAME));
+        }
+
+        // 构建并返回VO
+        return SearchScrollStoreFlowVO.builder()
+                .total(searchScrollHits.getTotalHits())
+                .scrollId(searchScrollHits.getScrollId())
+                .content(searchScrollHits.getSearchHits().stream().map(SearchHit::getContent).collect(Collectors.toList()))
+                .build();
     }
 
     /**

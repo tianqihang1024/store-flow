@@ -2,7 +2,9 @@ package extend.es;
 
 import extend.bean.StoreFlow;
 import extend.param.SearchStoreFlowParam;
+import extend.param.SearchStoreFlowScrollParam;
 import extend.param.UpdateStoreFlowParam;
+import extend.vo.SearchScrollStoreFlowVO;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.UpdateResponse;
 
@@ -34,4 +36,12 @@ public interface StoreFlowEsService {
      * @return
      */
     UpdateResponse updateStoreFlow(UpdateStoreFlowParam storeFlowParam);
+
+    /**
+     * 滚动查询店铺客流数据
+     *
+     * @param searchStoreFlowScrollParam
+     * @return
+     */
+    SearchScrollStoreFlowVO searchScrollStoreFlow(SearchStoreFlowScrollParam searchStoreFlowScrollParam);
 }

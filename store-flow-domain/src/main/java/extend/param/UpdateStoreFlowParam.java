@@ -1,9 +1,7 @@
 package extend.param;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -13,9 +11,7 @@ import java.time.LocalDateTime;
  * @Description 客流表修改请求参数
  * @Date 2022/10/15 21:10
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class UpdateStoreFlowParam {
 
     /**

@@ -10,6 +10,11 @@ import java.util.List;
 @Component
 public class EasySqlInjector extends DefaultSqlInjector {
 
+    /**
+     * 用于开启Mybatis-Plus批量插入功能（仅支持MySQL）
+     *
+     * @return
+     */
     @Override
     public List<AbstractMethod> getMethodList() {
         //继承原有方法
