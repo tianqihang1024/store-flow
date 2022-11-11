@@ -29,6 +29,12 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>extend</groupId>
+            <artifactId>extend-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- seata 分布式事务依赖 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

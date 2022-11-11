@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * @Date 2022/9/17 16:24
  */
 @Configuration
-public class ElasticsearchRestTemplateConfig {
+public class ElasticsearchConfig {
 
     @Value("${spring.elasticsearch.rest.ip}")
     private String uris;

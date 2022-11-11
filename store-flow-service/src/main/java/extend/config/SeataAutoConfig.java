@@ -3,8 +3,7 @@ package extend.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import io.seata.rm.datasource.DataSourceProxy;
 import io.seata.spring.annotation.GlobalTransactionScanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -15,16 +14,21 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
+@Slf4j
 @Configuration
 public class SeataAutoConfig {
-    private final static Logger logger = LoggerFactory.getLogger(SeataAutoConfig.class);
+
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
-    @Bean(name = "druidDataSource") // 声明其为Bean实例
+    /**
+     * druid数据源
+     * @return
+     */
+    @Bean(name = "druidDataSource")
     public DataSource druidDataSource() {
         DruidDataSource druidDataSource = new DruidDataSource();
-        logger.info("dataSourceProperties.getUrl():{}", dataSourceProperties.getUrl());
+        log.info("dataSourceProperties.getUrl():{}", dataSourceProperties.getUrl());
         druidDataSource.setUrl(dataSourceProperties.getUrl());
         druidDataSource.setUsername(dataSourceProperties.getUsername());
         druidDataSource.setPassword(dataSourceProperties.getPassword());
@@ -42,7 +46,7 @@ public class SeataAutoConfig {
         druidDataSource.setRemoveAbandoned(true);
         druidDataSource.setRemoveAbandonedTimeout(1800);
         druidDataSource.setLogAbandoned(true);
-        logger.info("装载dataSource........");
+        log.info("装载dataSource........");
         return druidDataSource;
     }
 
@@ -56,7 +60,7 @@ public class SeataAutoConfig {
     @Primary // 在同样的DataSource中，首先使用被标注的DataSource
     @DependsOn(value = {"druidDataSource"})
     public DataSourceProxy dataSourceProxy(@Qualifier(value = "druidDataSource") DruidDataSource druidDataSource) {
-        logger.info("代理dataSource........");
+        log.info("代理dataSource........");
         return new DataSourceProxy(druidDataSource);
     }
 
@@ -68,7 +72,7 @@ public class SeataAutoConfig {
     @Bean
     @DependsOn(value = {"druidDataSource"})
     public GlobalTransactionScanner globalTransactionScanner() {
-        logger.info("配置seata........");
+        log.info("配置seata........");
         return new GlobalTransactionScanner("store-flow-service", "my_test_tx_group");
     }
 }

@@ -1,36 +1,46 @@
 package extend.es.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import extend.bean.Article;
-import extend.bean.StoreFlow;
 import extend.dao.ArticleRepository;
+import extend.enums.ExtendExceptionEnum;
 import extend.enums.StoreFlowSortColumnNameEnum;
 import extend.es.ArticleService;
+import extend.param.SearchScrollAfterArticleParam;
 import extend.param.SearchScrollArticleParam;
-import extend.param.SearchStoreFlowScrollParam;
-import extend.vo.SearchScrollStoreFlowVO;
+import extend.util.StoreFlowFailEnum;
+import extend.utils.Result;
+import extend.vo.SearchScrollAfterArticlePageVO;
+import extend.vo.SearchScrollAfterArticleVO;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 田奇杭
@@ -46,11 +56,28 @@ public class ArticleServiceImpl implements ArticleService {
      */
     private static final String INDEX_NAME = "article_index";
 
+    /**
+     * 搜索文本键
+     */
+    private static final String SEARCH_TXT_KEY = "search_txt_%s";
+
+    /**
+     * 搜索文本最大长度
+     */
+    private static final int SEARCH_TXT_MAX_LENGTH = 25;
+
     @Resource
     private ArticleRepository articleRepository;
 
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+    @Resource
+    private RestHighLevelClient restHighLevelClient;
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+
 
     public void initData() {
 
@@ -67,7 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
-     * 滚动查询店铺客流数据
+     * 滚动查询文章
      *
      * @param searchScrollArticleParam
      * @return
@@ -111,4 +138,129 @@ public class ArticleServiceImpl implements ArticleService {
 
         return searchScrollHits;
     }
+
+    /**
+     * 滚动查询文章
+     *
+     * @param searchScrollAfterArticleParam
+     * @return
+     */
+    @Override
+    public Result<SearchScrollAfterArticlePageVO> searchScrollAfterArticle(SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
+
+        // 参数检查
+        StoreFlowFailEnum storeFlowFailEnum = this.checkSearchScrollAfterArticleParam(searchScrollAfterArticleParam);
+        if (storeFlowFailEnum != null) {
+            return Result.fail(storeFlowFailEnum.getCode(), storeFlowFailEnum.getMsg());
+        }
+
+        // 构建查询器
+        SearchRequest searchRequest = this.buildSearchRequest(searchScrollAfterArticleParam);
+        try {
+            // 查询
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            // 构建结果集并返回
+            return Result.success(buildSearchScrollAfterArticlePageVO(searchResponse));
+        } catch (IOException e) {
+            log.error("ArticleServiceImpl.searchScrollAfterArticle search fail e:", e);
+            return Result.fail(ExtendExceptionEnum.SYSTEM_EXCEPTION.getCode(), ExtendExceptionEnum.SYSTEM_EXCEPTION.getMsg());
+        }
+    }
+
+    private StoreFlowFailEnum checkSearchScrollAfterArticleParam(SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
+
+        if (searchScrollAfterArticleParam == null) {
+            return StoreFlowFailEnum.PARAM_CANNOT_BE_EMPTY;
+        }
+        if (StringUtils.isEmpty(searchScrollAfterArticleParam.getSearchTxt())) {
+            return StoreFlowFailEnum.SEARCH_TEXT_IS_NULL;
+        }
+        return null;
+    }
+
+    private SearchRequest buildSearchRequest(SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
+
+        // 尝试修正搜索内容的长度，避免极端的搜索内容
+        if (searchScrollAfterArticleParam.getSearchTxt().length() > SEARCH_TXT_MAX_LENGTH) {
+            searchScrollAfterArticleParam.setSearchTxt(searchScrollAfterArticleParam.getSearchTxt().substring(0, SEARCH_TXT_MAX_LENGTH));
+        }
+
+        // 条件查询器
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .should(QueryBuilders.matchQuery("title", searchScrollAfterArticleParam.getSearchTxt()))
+                .should(QueryBuilders.matchQuery("context", searchScrollAfterArticleParam.getSearchTxt()));
+
+        // 自定义排序器
+        StoreFlowSortColumnNameEnum columnNameEnum = StoreFlowSortColumnNameEnum.getEnumByCode(searchScrollAfterArticleParam.getSortColumnCode());
+        FieldSortBuilder sortBuilder = SortBuilders
+                .fieldSort(columnNameEnum.getColumnName())
+                .order(SortOrder.DESC);
+        // 分数排序器
+        ScoreSortBuilder scoreSortBuilder = new ScoreSortBuilder();
+
+        // 源生成器
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
+                .query(queryBuilder)
+                .size(searchScrollAfterArticleParam.getPageSize())
+                .sort(scoreSortBuilder)
+                .sort(sortBuilder);
+        // 尝试获取排序值，并复制
+        Object[] sortValues = searchScrollAfterArticleParam.getSortValues() != null ? searchScrollAfterArticleParam.getSortValues() : this.tryGetCacheSortValues(searchScrollAfterArticleParam);
+        if (sortValues.length == 2) {
+            sourceBuilder.searchAfter(sortValues);
+        }
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(INDEX_NAME);
+        searchRequest.source(sourceBuilder);
+        return searchRequest;
+    }
+
+
+    /**
+     * 尝试获取缓存的排序值
+     *
+     * @param searchScrollAfterArticleParam
+     * @return
+     */
+    private Object[] tryGetCacheSortValues(SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
+
+        if (searchScrollAfterArticleParam.getPageNum() == null || searchScrollAfterArticleParam.getPageNum() >= 1) {
+            return new Object[0];
+        }
+
+        String searchTxtKey = String.format(SEARCH_TXT_KEY, searchScrollAfterArticleParam.getSearchTxt());
+        Object o = redisTemplate.boundHashOps(searchTxtKey).get(searchScrollAfterArticleParam.getPageNum());
+
+        if (!(o instanceof String)) {
+            return new Object[0];
+        }
+
+        JSONArray objects = JSON.parseArray((String) o);
+        return new Object[]{objects.get(0), objects.get(1)};
+    }
+
+    /**
+     * 构建 VO
+     *
+     * @param searchResponse
+     * @return
+     */
+    private SearchScrollAfterArticlePageVO buildSearchScrollAfterArticlePageVO(SearchResponse searchResponse) {
+
+        List<SearchScrollAfterArticleVO> searchScrollAfterArticleVos = new ArrayList<>();
+        for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+            searchScrollAfterArticleVos.add(JSON.parseObject(searchHit.getSourceAsString(), SearchScrollAfterArticleVO.class));
+        }
+
+        SearchHit[] hits = searchResponse.getHits().getHits();
+        SearchHit last = hits[hits.length - 1];
+        Object[] sortValues = last.getSortValues();
+
+        return SearchScrollAfterArticlePageVO.builder()
+                .searchResponse(searchScrollAfterArticleVos)
+                .sortValues(sortValues)
+                .build();
+    }
+
 }

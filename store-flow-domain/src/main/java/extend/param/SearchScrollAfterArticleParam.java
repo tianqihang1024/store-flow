@@ -5,15 +5,15 @@ import lombok.Data;
 /**
  * @author 田奇杭
  * @Description
- * @Date 2022/11/6 21:17
+ * @Date 2022/11/10 20:43
  */
 @Data
-public class SearchScrollArticleParam {
+public class SearchScrollAfterArticleParam {
 
     /**
      * 查询文本
      */
-    private String searchText;
+    private String searchTxt;
 
     /**
      * 排序列
@@ -21,12 +21,18 @@ public class SearchScrollArticleParam {
     private Integer sortColumnCode;
 
     /**
+     * 页面编号
+     */
+    private Integer pageNum;
+
+    /**
      * 页面大小
      */
     private Integer pageSize;
 
     /**
-     * 滚动快照id
+     * 排序值
      */
-    private String scrollId;
+    private Object[] sortValues;
+
 }

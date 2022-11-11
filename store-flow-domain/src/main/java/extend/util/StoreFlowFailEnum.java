@@ -15,6 +15,7 @@ public enum StoreFlowFailEnum {
     TENANT_CANNOT_BE_EMPTY(200001, "租户不能是空"),
     STORE_CANNOT_BE_EMPTY(200002, "店铺不能是空"),
     TENANT_STORE_CANNOT_BE_EMPTY(200003, "租户商店不能为空"),
+    SEARCH_TEXT_IS_NULL(200004, "请输入您感兴趣的内容"),
 
 
     ;
