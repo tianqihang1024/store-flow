@@ -1,8 +1,12 @@
 package extend.config;
 
 import org.apache.http.HttpHost;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${spring.elasticsearch.rest.ip}")
-    private String uris;
+    @Value("${elasticsearch.hosts}")
+    private String hosts;
 
     /**
      * 本人会将这个服务部署到云服务器，采用的docker方式，存在IP问题，
@@ -24,15 +28,28 @@ public class ElasticsearchConfig {
      *
      * @return
      */
-    @Bean
-    public RestHighLevelClient restHighLevelClient() {
-        int i = Runtime.getRuntime().availableProcessors();
-        String uri = i > 4 ? uris : "172.17.0.4";
-        return new RestHighLevelClient(
-                RestClient.builder(
-                        new HttpHost(uri, 9200, "http")
-                )
-        );
+    @Bean(name = "highLevelClient")
+    public RestHighLevelClient highLevelClient(@Autowired RestClientBuilder restClientBuilder) {
+        String[] hosts = this.hosts.split(",");
+        HttpHost[] httpHosts = new HttpHost[hosts.length];
+        for (int i = 0; i < hosts.length; i++) {
+            String host = hosts[i].split(":")[0];
+            int port = Integer.parseInt(hosts[i].split(":")[1]);
+            httpHosts[i] = new HttpHost(host, port, "http");
+        }
+
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
+        RestClientBuilder builder = RestClient.builder(httpHosts).setRequestConfigCallback(requestConfigBuilder -> {
+            requestConfigBuilder.setConnectTimeout(-1);
+            requestConfigBuilder.setSocketTimeout(-1);
+            requestConfigBuilder.setConnectionRequestTimeout(-1);
+            return requestConfigBuilder;
+        }).setHttpClientConfigCallback(httpClientBuilder -> {
+            httpClientBuilder.disableAuthCaching();
+            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+        });
+        return new RestHighLevelClient(builder);
     }
 
 }

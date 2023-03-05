@@ -16,6 +16,16 @@ public class SearchScrollAfterArticleParam {
     private String searchTxt;
 
     /**
+     * 姓名
+     */
+    private String name;
+
+    /**
+     * 年龄
+     */
+    private String age;
+
+    /**
      * 排序列
      */
     private Integer sortColumnCode;
