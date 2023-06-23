@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 /**
  * @author 田奇杭
- * @Description
+ * @Description 滚动查询文章vo
  * @Date 2022/11/10 22:40
  */
 @Data
-public class SearchScrollAfterArticleVO {
+public class SearchScrollArticleVO {
 
     private Long id;
 
@@ -19,6 +19,6 @@ public class SearchScrollAfterArticleVO {
 
     private String context;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private LocalDateTime created;
 }

@@ -1,4 +1,3 @@
-
 spring: #springboot的配置
   datasource: #定义数据源
     driver-class-name: com.mysql.cj.jdbc.Driver

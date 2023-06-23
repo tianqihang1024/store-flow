@@ -1,16 +1,11 @@
 package extend.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import io.seata.rm.datasource.DataSourceProxy;
-import io.seata.spring.annotation.GlobalTransactionScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
@@ -23,6 +18,7 @@ public class SeataAutoConfig {
 
     /**
      * druid数据源
+     *
      * @return
      */
     @Bean(name = "druidDataSource")
@@ -50,29 +46,29 @@ public class SeataAutoConfig {
         return druidDataSource;
     }
 
-    /**
-     * init datasource proxy
-     *
-     * @Param: druidDataSource datasource bean instance
-     * @Return: DataSourceProxy datasource proxy
-     */
-    @Bean(name = "dataSource")
-    @Primary // 在同样的DataSource中，首先使用被标注的DataSource
-    @DependsOn(value = {"druidDataSource"})
-    public DataSourceProxy dataSourceProxy(@Qualifier(value = "druidDataSource") DruidDataSource druidDataSource) {
-        log.info("代理dataSource........");
-        return new DataSourceProxy(druidDataSource);
-    }
+//    /**
+//     * init datasource proxy
+//     *
+//     * @Param: druidDataSource datasource bean instance
+//     * @Return: DataSourceProxy datasource proxy
+//     */
+//    @Bean(name = "dataSource")
+//    @Primary // 在同样的DataSource中，首先使用被标注的DataSource
+//    @DependsOn(value = {"druidDataSource"})
+//    public DataSourceProxy dataSourceProxy(@Qualifier(value = "druidDataSource") DruidDataSource druidDataSource) {
+//        log.info("代理dataSource........");
+//        return new DataSourceProxy(druidDataSource);
+//    }
 
-    /**
-     * init global transaction scanner
-     *
-     * @Return: GlobalTransactionScanner
-     */
-    @Bean
-    @DependsOn(value = {"druidDataSource"})
-    public GlobalTransactionScanner globalTransactionScanner() {
-        log.info("配置seata........");
-        return new GlobalTransactionScanner("store-flow-service", "my_test_tx_group");
-    }
+//    /**
+//     * init global transaction scanner
+//     *
+//     * @Return: GlobalTransactionScanner
+//     */
+//    @Bean
+//    @DependsOn(value = {"druidDataSource"})
+//    public GlobalTransactionScanner globalTransactionScanner() {
+//        log.info("配置seata........");
+//        return new GlobalTransactionScanner("store-flow-service", "my_test_tx_group");
+//    }
 }

@@ -1,17 +1,15 @@
-
 spring: #springboot的配置
   datasource: #定义数据源
     driver-class-name: com.mysql.cj.jdbc.Driver
     #81.70.96.232为本机测试的ip，3306是mysql的端口号。serverTimezone是定义时区，照抄就好，mysql高版本需要定义这些东西
     #useSSL也是某些高版本mysql需要问有没有用SSL连接
-    url: jdbc:mysql://bj-cdb-6r45n79k.sql.tencentcdb.com:60062/store_flow?serverTimezone=GMT%2B8&useSSL=FALSE
+    url: jdbc:mysql://192.168.200.131:3306/extend_store_flow?serverTimezone=GMT%2B8&useSSL=FALSE
     username: root  #数据库用户名，root为管理员
-    password: Tqh962454294 #该数据库用户的密码
+    password: W6vSN.6j:OT8 #该数据库用户的密码
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
-    client-name: r-2zeyc8xu8nz6nemlw0
-    password: TQH&19970227
-    host: r-2zeyc8xu8nz6nemlw0pd.redis.rds.aliyuncs.com
+    password: W6vSN.6j:OT8
+    host: 192.168.200.131:6379
     lettuce:
       pool:
         max-active: 8
@@ -24,7 +22,7 @@ spring: #springboot的配置
         enabled: true
 
 elasticsearch:
-  hosts: 192.168.200.131:9200,192.168.200.132:9200,192.168.200.133:9200
+  hosts: 192.168.200.131:9200
 
 management:
   health:

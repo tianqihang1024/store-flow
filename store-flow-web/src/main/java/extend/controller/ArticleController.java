@@ -1,13 +1,12 @@
 package extend.controller;
 
-import extend.bean.Article;
 import extend.es.ArticleService;
 import extend.param.SearchScrollAfterArticleParam;
 import extend.param.SearchScrollArticleParam;
 import extend.utils.Result;
 import extend.vo.SearchScrollAfterArticlePageVO;
+import extend.vo.SearchScrollArticlePageVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +32,7 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "searchScrollArticle")
-    public SearchScrollHits<Article> searchScrollArticle(@RequestBody SearchScrollArticleParam searchScrollArticleParam) {
+    public Result<SearchScrollArticlePageVO> searchScrollArticle(@RequestBody SearchScrollArticleParam searchScrollArticleParam) {
         return articleService.searchScrollArticle(searchScrollArticleParam);
     }
 
@@ -41,4 +40,5 @@ public class ArticleController {
     public Result<SearchScrollAfterArticlePageVO> searchScrollAfterArticle(@RequestBody SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
         return articleService.searchScrollAfterArticle(searchScrollAfterArticleParam);
     }
+
 }

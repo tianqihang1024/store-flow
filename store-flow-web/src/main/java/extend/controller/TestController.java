@@ -5,16 +5,14 @@ import extend.es.StoreFlowEsService;
 import extend.param.SearchStoreFlowParam;
 import extend.param.SearchStoreFlowScrollParam;
 import extend.param.UpdateStoreFlowParam;
+import extend.utils.Result;
 import extend.vo.SearchScrollStoreFlowVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.UpdateResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author 田奇杭
@@ -36,7 +34,7 @@ public class TestController {
      * @return
      */
     @RequestMapping(value = "findStoreFlowById")
-    public List<StoreFlow> findStoreFlowById(Long id) {
+    public Result<StoreFlow> findStoreFlowById(Long id) {
         return storeFlowEsService.findStoreFlowById(id);
     }
 
@@ -47,7 +45,7 @@ public class TestController {
      * @return
      */
     @RequestMapping(value = "searchStoreFlowByParam")
-    public SearchHits<StoreFlow> searchStoreFlowByParam(@RequestBody SearchStoreFlowParam searchStoreFlowParam) {
+    public Result<StoreFlow> searchStoreFlowByParam(@RequestBody SearchStoreFlowParam searchStoreFlowParam) {
         return storeFlowEsService.searchStoreFlowByParam(searchStoreFlowParam);
     }
 
@@ -58,7 +56,7 @@ public class TestController {
      * @return
      */
     @RequestMapping(value = "updateStoreFlow")
-    public UpdateResponse updateStoreFlow(@RequestBody UpdateStoreFlowParam storeFlowParam) {
+    public Result<Void> updateStoreFlow(@RequestBody UpdateStoreFlowParam storeFlowParam) {
         return storeFlowEsService.updateStoreFlow(storeFlowParam);
     }
 
@@ -69,7 +67,7 @@ public class TestController {
      * @return
      */
     @RequestMapping(value = "searchScrollStoreFlow")
-    public SearchScrollStoreFlowVO searchScrollStoreFlow(@RequestBody SearchStoreFlowScrollParam searchStoreFlowScrollParam) {
+    public Result<SearchScrollStoreFlowVO> searchScrollStoreFlow(@RequestBody SearchStoreFlowScrollParam searchStoreFlowScrollParam) {
         return storeFlowEsService.searchScrollStoreFlow(searchStoreFlowScrollParam);
     }
 

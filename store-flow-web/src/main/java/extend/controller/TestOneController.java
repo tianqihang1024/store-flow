@@ -2,7 +2,6 @@ package extend.controller;
 
 import com.alibaba.fastjson.JSON;
 import extend.bean.StoreFlow;
-import extend.dao.StoreFlowRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -40,15 +39,12 @@ import java.util.Objects;
 public class TestOneController {
 
     @Resource
-    private StoreFlowRepository storeFlowRepository;
-
-    @Resource
     private RestHighLevelClient restHighLevelClient;
 
     @RequestMapping("searchStoreFlowByTenantId")
     public List<StoreFlow> searchStoreFlowByTenantId(@RequestParam(required = false) String tenantId,
-                                                    @RequestParam(required = false) String storeId,
-                                                    @RequestParam(required = false) String id) {
+                                                     @RequestParam(required = false) String storeId,
+                                                     @RequestParam(required = false) String id) {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         if (!StringUtils.isEmpty(tenantId)) {

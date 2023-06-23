@@ -58,8 +58,8 @@ public class StoreFlowTask {
                             .storeId(store.getStoreId())
                             .flowCount(flowCount)
                             .valid(0)
-                            .createTime(copy)
-                            .updateTime(copy)
+                            .created(copy)
+                            .updated(copy)
                             .build();
                     storeFlowMapper.insert(storeFlow);
                 }

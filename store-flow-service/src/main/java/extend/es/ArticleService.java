@@ -1,11 +1,10 @@
 package extend.es;
 
-import extend.bean.Article;
 import extend.param.SearchScrollAfterArticleParam;
 import extend.param.SearchScrollArticleParam;
 import extend.utils.Result;
 import extend.vo.SearchScrollAfterArticlePageVO;
-import org.springframework.data.elasticsearch.core.SearchScrollHits;
+import extend.vo.SearchScrollArticlePageVO;
 
 /**
  * @author 田奇杭
@@ -16,7 +15,7 @@ public interface ArticleService {
 
     void initData();
 
-    SearchScrollHits<Article> searchScrollArticle(SearchScrollArticleParam searchScrollArticleParam);
+    Result<SearchScrollArticlePageVO> searchScrollArticle(SearchScrollArticleParam searchScrollArticleParam);
 
     Result<SearchScrollAfterArticlePageVO> searchScrollAfterArticle(SearchScrollAfterArticleParam searchScrollAfterArticleParam);
 }

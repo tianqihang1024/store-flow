@@ -17,7 +17,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,tenant_id,store_id,
+        id
+        ,tenant_id,store_id,
         male_count,female_count,unknown_count,
         valid,create_time,update_time
     </sql>

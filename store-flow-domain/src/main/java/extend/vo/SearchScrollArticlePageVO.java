@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * @author 田奇杭
+ * @Author 田奇杭
  * @Description 滚动查询文章页vo
- * @Date 2022/11/10 22:33
+ * @Date 2023/6/23 11:59
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchScrollAfterArticlePageVO extends BasePageVO {
+public class SearchScrollArticlePageVO {
 
     /**
      * 深度分页查询结果
@@ -24,8 +24,8 @@ public class SearchScrollAfterArticlePageVO extends BasePageVO {
     private List<SearchScrollArticleVO> searchResponse;
 
     /**
-     * 深度分页游标，根据这个值进行上下页切换
+     * 滚动id，根据这个值进行上下页切换
      */
-    private Object[] sortValues;
+    private String ScrollId;
 
 }
