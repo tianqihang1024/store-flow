@@ -9,7 +9,8 @@ spring: #springboot的配置
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
     password: W6vSN.6j:OT8
-    host: 192.168.200.131:6379
+    host: 192.168.200.131
+    port: 6379
     lettuce:
       pool:
         max-active: 8

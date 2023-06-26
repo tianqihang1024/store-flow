@@ -187,17 +187,21 @@ public class ArticleServiceImpl implements ArticleService {
 
         // 参数检查
         StoreFlowFailEnum storeFlowFailEnum = this.checkSearchScrollAfterArticleParam(searchScrollAfterArticleParam);
-        if (storeFlowFailEnum != null) {
+        if (storeFlowFailEnum != null)
             return Result.fail(storeFlowFailEnum.getCode(), storeFlowFailEnum.getMsg());
-        }
 
         // 构建查询器
         SearchRequest searchRequest = this.buildSearchRequest(searchScrollAfterArticleParam);
         try {
             // 查询
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            // 构建结果集并返回
-            return Result.success(buildSearchScrollAfterArticlePageVO(searchResponse));
+            // 构建结果集
+            SearchScrollAfterArticlePageVO searchScrollAfterArticlePageVO = this.buildSearchScrollAfterArticlePageVO(searchResponse);
+            // 尝试缓存排序结果，方便后续的前后翻页。向后查询和第一次查询需要缓存排序结果，用以维护缓存中的页码索引
+            if (searchScrollAfterArticleParam.getSortValues() != null || searchScrollAfterArticleParam.getPageNum() == 1)
+                this.tryCacheSortValue(searchScrollAfterArticlePageVO.getSortValues(), searchScrollAfterArticleParam.getSearchTxt(), searchScrollAfterArticleParam.getPageNum());
+            // 返回结果集
+            return Result.success(searchScrollAfterArticlePageVO);
         } catch (IOException e) {
             log.error("ArticleServiceImpl.searchScrollAfterArticle search fail e:", e);
         }
@@ -275,19 +279,19 @@ public class ArticleServiceImpl implements ArticleService {
      */
     private Object[] tryGetCacheSortValues(SearchScrollAfterArticleParam searchScrollAfterArticleParam) {
 
-        if (searchScrollAfterArticleParam.getPageNum() == null || searchScrollAfterArticleParam.getPageNum() >= 1) {
-            return new Object[0];
+        if (searchScrollAfterArticleParam.getPageNum() == null || searchScrollAfterArticleParam.getPageNum() <= 1) {
+            return new Object[]{};
         }
 
         String searchTxtKey = String.format(SEARCH_TXT_KEY, searchScrollAfterArticleParam.getSearchTxt());
-        Object o = redisTemplate.boundHashOps(searchTxtKey).get(searchScrollAfterArticleParam.getPageNum());
+        Object o = redisTemplate.boundHashOps(searchTxtKey).get(searchScrollAfterArticleParam.getPageNum().toString());
 
         if (!(o instanceof String)) {
-            return new Object[0];
+            return new Object[]{};
         }
 
         JSONArray objects = JSON.parseArray((String) o);
-        return new Object[]{objects.get(0), objects.get(1)};
+        return new Object[]{String.valueOf(objects.get(0)), String.valueOf(objects.get(1))};
     }
 
     /**
@@ -339,6 +343,25 @@ public class ArticleServiceImpl implements ArticleService {
                 .searchResponse(searchScrollArticleVos)
                 .ScrollId(scrollId)
                 .build();
+    }
+
+    /**
+     * 尝试缓存排序结果，方便以后可能的前后页查询。
+     * 本方法并不保证成功，即使出现异常，也不能因为缓存而影响到查询结果的展示。
+     * todo 所有涉及缓存的地方都需要整改，待公共包给完善后替换现有API
+     *
+     * @param sortValueArray 排序结果，下一次查询将从他开始检索
+     * @param searchTxt      本次查询的搜索内容
+     * @param pageNum        本次查询的搜索内容的页码
+     */
+    private void tryCacheSortValue(Object[] sortValueArray, String searchTxt, Integer pageNum) {
+        String searchTxtKey = String.format(SEARCH_TXT_KEY, searchTxt);
+        String sortValueString = JSON.toJSONString(sortValueArray);
+        try {
+            redisTemplate.boundHashOps(searchTxtKey).put((++pageNum).toString(), sortValueString);
+        } catch (Exception e) {
+            log.error("sortValueArray 缓存失败 searchTxt:{}, pageNum:{}, sortValueArray:{} e:", searchTxt, pageNum, sortValueString, e);
+        }
     }
 
 }
